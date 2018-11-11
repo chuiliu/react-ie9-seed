@@ -1,10 +1,15 @@
 const path = require('path');
 const webpack = require('webpack');
-
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
+  output: {
+    path: path.resolve(__dirname, '../dist'),  // 打包输出路径
+    filename: 'js/[name].[chunkhash:8].js',
+    publicPath: './',  // 添加在静态资源前面的路径
+    chunkFilename: 'js/[name].[chunkhash:8].js'  // 按需加载的js
+  },
   module: {
     rules: [
       {
@@ -15,36 +20,16 @@ module.exports = {
         }]
       },
       {
-        test: /\.css|less$/,
-        // 让热加载支持提取CSS
-        use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            'css-loader',
-            {
-              loader: 'postcss-loader',
-              options: {
-                plugins() {
-                  return [require('autoprefixer')()]
-                }
-              }
-            },
-            'less-loader'
-          ],
-          publicPath: '../'
-        }))
-      },
-      {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url-loader',
         options: {
           limit: 8192,  // 小于等于8K转base64
-          name: '[name].[ext]?[hash]'
+          name: 'img/[name].[ext]?[hash:8]'
         }
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        loader: 'file-loader?name=[hash].[ext]'
+        loader: 'file-loader?name=[hash:8].[ext]'
       }
     ]
   },
@@ -59,8 +44,12 @@ module.exports = {
       filename: 'index.html',
       template: path.resolve(__dirname, '../public/index.html')
     }),
+    new webpack.HashedModuleIdsPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor'
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'runtime'
     }),
     new ExtractTextPlugin({
       filename: 'css/[name].[contenthash:8].css',

@@ -1,3 +1,4 @@
+// import 'raf/polyfill';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
@@ -16,7 +17,7 @@ if (module.hot) {
 function renderWithHotReload(AppRouter) {
   ReactDom.render(
     <AppContainer>
-      <AppRouter />
+      <AppRouter key={Math.random()} />
     </AppContainer>,
     document.getElementById('app')
   );

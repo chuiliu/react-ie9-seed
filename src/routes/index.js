@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { HashRouter as Router, Route, Redirect, Switch, Link } from 'react-router-dom';
+import Loadable from 'react-loadable';
 
 // import Home from '@/pages/Home/Home';
-// import About from '@/pages/About/About';
-
-import Loadable from 'react-loadable';
+import About from '@/pages/About/About';
 
 const Loading = () => (<div>loading...</div>);
 
 const Home = Loadable({
   loader: () => import('@/pages/Home/Home'),
-  loading: Loading
+  loading: Loading,
+  delay: 200
 });
 
 const About = Loadable({

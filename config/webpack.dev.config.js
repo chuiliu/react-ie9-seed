@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const merge = require('webpack-merge');
 const baseConfig = require('./webpack.base.config');
 const PORT = process.env.PORT || 8000;
@@ -8,16 +9,48 @@ module.exports = merge(baseConfig, {
   entry: {
     app: [
       'react-hot-loader/patch',
-      'babel-polyfill',
       path.resolve(__dirname, '../src/index.js')
     ],
-    vendor: ['react', 'react-dom', 'react-router-dom', 'react-redux']
+    vendor: ['babel-polyfill', 'raf/polyfill', 'react', 'react-dom', 'react-router-dom']
   },
   output: {
-    path: path.resolve(__dirname, '../dist'),  // 打包输出路径
     filename: 'js/[name].[hash:8].js',  // 因chunkhash与webpack-dev-server --hot不兼容，因此dev暂用hash，prod应该用trunkhash
-    publicPath: './',  // 添加在静态资源前面的路径
-    chunkFilename: 'js/[name].[chunkhash:8].js'  // 按需加载的js
+  },
+  module: {
+    rules: [{
+      test: /\.css|less$/,
+      // 让热加载支持提取CSS
+      use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
+        fallback: 'style-loader',
+        use: [
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+              importLoaders: 1
+            }
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              plugins(loader) {
+                return [
+                  require('postcss-import')({
+                    root: loader.resourcePath
+                  }),
+                  require('autoprefixer')({
+                    browsers: ['> 1%', 'last 2 versions', 'not ie < 9']
+                  }),
+                  require('cssnano')()
+                ]
+              }
+            }
+          },
+          'less-loader'
+        ],
+        publicPath: '../'
+      }))
+    }]
   },
   devtool: 'inline-source-map',
   devServer: {
@@ -27,7 +60,7 @@ module.exports = merge(baseConfig, {
     open: false,
     publicPath: '/', // TODO:
     contentBase: 'dist',
-    // contentBase: path.join(__dirname, '../dist')
+    // contentBase: path.resolve(__dirname, '../dist')
     historyApiFallback: true,
     // proxy: {
     //   '/api': 'http://localhost:8000'
