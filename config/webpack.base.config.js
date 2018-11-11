@@ -1,26 +1,17 @@
-import path from 'path';
-import webpack from 'webpack';
-import ExtractTextPlugin from 'extra-text-webpack-plugin';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
+const path = require('path');
+const webpack = require('webpack');
 
-export default {
-  entry: {
-    app: ['babel-polyfill', path.resolve(__dirname, '../src/index.js')],
-    vendor: ['react', 'react-dom', 'react-router-dom', 'react-redux']
-  },
-  output: {
-    path: path.resolve(__dirname, '../dist'),  // 打包输出路径
-    filename: 'js/[name].[hash].js',
-    publicPath: './',  // 添加在静态资源前面的路径
-    chunkFilename: 'js/[name].[chunkhash].js'  // 按需加载的js
-  },
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: [{
-            loader: 'babel-loader'
+            loader: 'babel-loader?cacheDirectory=true'
         }]
       },
       {
@@ -47,7 +38,7 @@ export default {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url-loader',
         options: {
-          limit: 10000,
+          limit: 8192,  // 小于等于8K转base64
           name: '[name].[ext]?[hash]'
         }
       },
@@ -58,14 +49,21 @@ export default {
     ]
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.json', '.less', '.css']  // import时可以省略后缀名
+    extensions: ['.js', '.jsx', '.json', '.less', '.css'],  // import时可以省略后缀名
+    alias: {
+      '@': path.resolve(__dirname, '../src')
+    }
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './index.html'
+      filename: 'index.html',
+      template: path.resolve(__dirname, '../public/index.html')
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor'
     }),
     new ExtractTextPlugin({
-      filename: 'css/[name].css',
+      filename: 'css/[name].[contenthash:8].css',
       allChunks: true,
       disable: false
     })

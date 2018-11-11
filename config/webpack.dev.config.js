@@ -1,64 +1,44 @@
-import path from 'path';
-import webpack from 'webpack';
-import merge from 'webpack-merge';
-import WebpackDevServer from 'webpack-dev-server';
-import baseConfig from './webpack.base.config';
+const path = require('path');
+const webpack = require('webpack');
+const merge = require('webpack-merge');
+const baseConfig = require('./webpack.base.config');
 const PORT = process.env.PORT || 8000;
 
-const config = merge(baseConfig, {
+module.exports = merge(baseConfig, {
   entry: {
     app: [
-      `webpack-dev-server/client?http://localhost:${PORT}/`,
-      'webpack/hot/dev-server',
+      'react-hot-loader/patch',
       'babel-polyfill',
       path.resolve(__dirname, '../src/index.js')
-    ]
+    ],
+    vendor: ['react', 'react-dom', 'react-router-dom', 'react-redux']
+  },
+  output: {
+    path: path.resolve(__dirname, '../dist'),  // 打包输出路径
+    filename: 'js/[name].[hash:8].js',  // 因chunkhash与webpack-dev-server --hot不兼容，因此dev暂用hash，prod应该用trunkhash
+    publicPath: './',  // 添加在静态资源前面的路径
+    chunkFilename: 'js/[name].[chunkhash:8].js'  // 按需加载的js
+  },
+  devtool: 'inline-source-map',
+  devServer: {
+    host: '0.0.0.0',
+    port: PORT,
+    // hot: true,
+    open: false,
+    publicPath: '/', // TODO:
+    contentBase: 'dist',
+    // contentBase: path.join(__dirname, '../dist')
+    historyApiFallback: true,
+    // proxy: {
+    //   '/api': 'http://localhost:8000'
+    // }
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify('development')
+      }
+    }),
+    // new webpack.HotModuleReplacementPlugin()
   ],
-  mode: 'development'
-})
-
-const complier = webpack(config);
-
-const server = new WebpackDevServer(complier, {
-  host: '0.0.0.0',
-  inline: true,
-  hot: true,
-  open: true,
-  filename: config.output.filename,
-  publicPath: config.output.publicPath,
-  contentBase: 'dist',
-  historyApiFallback: true,
-  stats: {
-    colors: true
-  }
 });
-
-server.listen(PORT, 'localhost', () => {
-  console.log(`server started at localhost:${PORT}`);
-})
-
-
-// export default merge(baseConfig, {
-//   devtool: 'inline-source-map',
-//   devServer: {
-//     host: '0.0.0.0',
-//     port: 8000,
-//     inline: true,
-//     hot: true,
-//     open: true,
-//     publicPath: '/', // TODO:
-//     contentBase: 'dist',
-//     historyApiFallback: true
-//   },
-//   plugins: [
-//     new webpack.DefinePlugin({
-//       'process.env': {
-//         NODE_ENV: JSON.stringify('development')
-//       }
-//     }),
-//     new webpack.HotModuleReplacementPlugin()
-//   ]
-// });
