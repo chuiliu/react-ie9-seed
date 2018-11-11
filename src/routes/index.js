@@ -3,7 +3,7 @@ import { HashRouter as Router, Route, Redirect, Switch, Link } from 'react-route
 import Loadable from 'react-loadable';
 
 // import Home from '@/pages/Home/Home';
-import About from '@/pages/About/About';
+// import About from '@/pages/About/About';
 
 const Loading = () => (<div>loading...</div>);
 
