@@ -1,23 +1,26 @@
 // import 'raf/polyfill';
 import React from 'react';
 import ReactDom from 'react-dom';
+import { HashRouter } from 'react-router-dom';
 import { AppContainer } from 'react-hot-loader';
 
-import AppRouter from './routes/index';
+import App from './App';
 
-renderWithHotReload(AppRouter);
+renderWithHotReload(App);
 
 if (module.hot) {
-  module.hot.accept('./routes/index', () => {
-    const AppRouter = require('./routes/index').default;
-    renderWithHotReload(AppRouter);
+  module.hot.accept('./App', () => {
+    const App = require('./App').default;
+    renderWithHotReload(App);
   });
 }
 
-function renderWithHotReload(AppRouter) {
+function renderWithHotReload(App) {
   ReactDom.render(
     <AppContainer>
-      <AppRouter key={Math.random()} />
+      <HashRouter>
+        <App key={Math.random()} />
+      </HashRouter>
     </AppContainer>,
     document.getElementById('app')
   );

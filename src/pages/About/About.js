@@ -5,7 +5,7 @@ import cat from '@/img/cat.jpg';
 
 export default (props) => (
   <div>
-    <img src={cat} alt="" width="120" />
+    <img src={cat} alt="" width="120" height="auto" />
     {/* <img src={icon} alt=""/> */}
     <h2>About page</h2>
   </div>

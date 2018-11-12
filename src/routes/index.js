@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { HashRouter as Router, Route, Redirect, Switch, Link } from 'react-router-dom';
+import React from 'react';
+import { Route, Redirect, Switch } from 'react-router-dom';
 import Loadable from 'react-loadable';
 
 // import Home from '@/pages/Home/Home';
@@ -19,20 +19,12 @@ const About = Loadable({
 });
 
 const AppRouter = () => (
-  <Router>
-    <div>
-      <ul>
-        <li><Link to="/home">Home</Link></li>
-        <li><Link to="/about">About</Link></li>
-      </ul>
-      <Switch>
-        <Route exact path="/" component={Home} />
-        <Route exact path="/home" component={Home} />
-        <Route path="/about" component={About} />
-        <Redirect to="/home" />
-      </Switch>
-    </div>
-  </Router>
+  <Switch>
+    <Route exact path="/" component={Home} />
+    <Route exact path="/home" component={Home} />
+    <Route path="/about" component={About} />
+    <Redirect to="/home" />
+  </Switch>
 );
 
 export default AppRouter;
