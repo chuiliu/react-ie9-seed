@@ -1,11 +1,12 @@
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const merge = require('webpack-merge');
+// const apiMocker = require('webpack-api-mocker');
 const baseConfig = require('./webpack.base.config');
 const PORT = process.env.PORT || 8000;
 
 module.exports = merge(baseConfig, {
+  devtool: 'inline-source-map',
   entry: {
     app: [
       'react-hot-loader/patch',
@@ -17,17 +18,20 @@ module.exports = merge(baseConfig, {
     filename: 'js/[name].[hash:8].js',  // 因chunkhash与webpack-dev-server --hot不兼容，因此dev暂用hash，prod应该用trunkhash
   },
   module: {
-    rules: [{
-      test: /\.css|less$/,
-      // 让热加载支持提取CSS
-      use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
-        fallback: 'style-loader',
+    rules: [
+      {
+        test: /\.css|less$/,
+        include: /src/,
         use: [
+          {
+            loader: 'style-loader'
+          },
           {
             loader: 'css-loader',
             options: {
               modules: true,
-              importLoaders: 1
+              importLoaders: 1,
+              localIdentName: '[name]__[local]-[hash:base64:6]'
             }
           },
           {
@@ -46,14 +50,47 @@ module.exports = merge(baseConfig, {
               }
             }
           },
-          'less-loader'
-        ],
-        publicPath: '../'
-      }))
-    }]
+          {
+            loader: 'less-loader',
+            options: {
+              javascriptEnabled: true
+            }
+          }
+        ]
+      },
+      // 处理antd样式
+      {
+        test: /\.css|less$/,
+        exclude: /src/,
+        use: [
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-loader',
+            options: {
+                importLoaders: 1
+            }
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              javascriptEnabled: true
+            }
+          }
+        ]
+      }
+    ]
   },
-  devtool: 'inline-source-map',
   devServer: {
+    // before(app) {
+    //   apiMocker(app, path.resolve(__dirname, '../mock/index.js'), {
+    //     proxy: {
+    //       '/repos/*': 'https://api.github.com/',
+    //     },
+    //     changeHost: true
+    //   })
+    // },
     host: '0.0.0.0',
     port: PORT,
     // hot: true,
@@ -71,7 +108,6 @@ module.exports = merge(baseConfig, {
       'process.env': {
         NODE_ENV: JSON.stringify('development')
       }
-    }),
-    // new webpack.HotModuleReplacementPlugin()
+    })
   ],
 });

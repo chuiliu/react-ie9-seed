@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -15,9 +14,25 @@ module.exports = {
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        use: [{
-            loader: 'babel-loader?cacheDirectory=true'
-        }]
+        // use: [{
+        //     loader: 'babel-loader?cacheDirectory=true'
+        // }]
+        loader: require.resolve('babel-loader'),
+        options: {
+          presets: [
+            'env',
+            'react'
+          ],
+          plugins: [
+            'react-hot-loader/babel',
+            'babel-plugin-syntax-dynamic-import',
+            ['import', [{
+              libraryName: 'antd',
+              style: true
+            }]]
+          ],
+          cacheDirectory: true,
+        },
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
@@ -48,13 +63,8 @@ module.exports = {
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor'
     }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'runtime'
-    }),
-    new ExtractTextPlugin({
-      filename: 'css/[name].[contenthash:8].css',
-      allChunks: true,
-      disable: false
-    })
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   name: 'runtime'
+    // }),
   ]
 };
