@@ -45,6 +45,7 @@ module.exports = merge(baseConfig, {
                   require('autoprefixer')({
                     browsers: ['> 1%', 'last 2 versions', 'not ie < 9']
                   }),
+                  require('postcss-opacity')(),
                   require('cssnano')()
                 ]
               }
